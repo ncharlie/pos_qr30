@@ -1,6 +1,6 @@
 import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
-import { QRPopup } from "@point_of_sale/app/utils/qr_code_popup/qr_code_popup";
+import { QR30Popup } from "@pos_qr30_scb/app/utils/qr_code_popup/qr_code_popup";
 import { ask } from "@point_of_sale/app/store/make_awaitable_dialog";
 import { ConnectionLostError } from "@web/core/network/rpc";
 import { patch } from "@web/core/utils/patch";
@@ -8,6 +8,11 @@ import { _t } from "@web/core/l10n/translation";
 
 patch(PosStore.prototype, {
   async showQR(payment) {
+    console.log(payment.payment_method_id.qr_code_method);
+    if (payment.payment_method_id.qr_code_method != "qr30")
+      return await super.showQR(payment);
+
+    console.log(payment.payment_method_id.payment_method_type);
     var self = this;
     let qr;
     let res;
@@ -99,7 +104,7 @@ patch(PosStore.prototype, {
         qrCode: qr,
       },
       {},
-      QRPopup
+      QR30Popup
     );
   },
 });

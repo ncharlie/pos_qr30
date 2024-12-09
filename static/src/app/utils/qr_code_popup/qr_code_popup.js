@@ -1,20 +1,29 @@
-import { QRPopup } from "@point_of_sale/app/utils/qr_code_popup/qr_code_popup";
-import { patch } from "@web/core/utils/patch";
-import { useState, onWillStart, onWillDestroy } from "@odoo/owl";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { useState, onWillStart, onWillDestroy } from "@odoo/owl";
 
-// this will patch static properties!!!
-patch(QRPopup, {
-  defaultProps: {
-    ...QRPopup.defaultProps,
+export class QR30Popup extends ConfirmationDialog {
+  static template = "pos_qr30_scb.QR30ConfirmationDialog";
+  static props = {
+    ...ConfirmationDialog.props,
+    line: Object,
+    order: Object,
+    qrCode: String,
+  };
+
+  static defaultProps = {
+    ...ConfirmationDialog.defaultProps,
+    confirmLabel: _t("Manually Confirm Payment"),
+    cancelLabel: _t("Cancel Payment"),
     title: _t("Mobile Banking"),
-  },
-});
+  };
 
-// this is probably the usual case: patching a class method
-patch(QRPopup.prototype, {
   setup() {
-    super.setup(...arguments);
+    super.setup();
+    this.props.body = _t("Please scan the QR code with %s", this.props.title);
+    this.amount = this.env.utils.formatCurrency(this.props.line.amount);
+    this.showCustomerScreen();
+
     var self = this;
     var remaining_duration = false;
     this.props.order.get_selected_paymentline().isCancelled = false;
@@ -51,7 +60,7 @@ patch(QRPopup.prototype, {
     this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", (data) => {
       if (this.props.order.getQRdata().scb_config_id) {
         var json_data = JSON.parse(data);
-        console.log("QR POPUP json_data >>>>>>> ", json_data);
+        // console.log("QR POPUP json_data >>>>>>> ", json_data);
         if (
           this.props.order.getQRdata().ref1 == json_data.billPaymentRef1 &&
           this.props.order.getQRdata().ref2 == json_data.billPaymentRef2 &&
@@ -66,7 +75,8 @@ patch(QRPopup.prototype, {
     });
     this.env.services.bus_service.start();
     this.props.order.setShowQR(true);
-  },
+  }
+
   _runTimer() {
     this.timer = setTimeout(() => {
       if (this.state.duration != 0) {
@@ -79,14 +89,16 @@ patch(QRPopup.prototype, {
         this.callCancelApiRequest();
       }
     }, 1000);
-  },
+  }
+
   async _cancel() {
     this.props.order.get_selected_paymentline().isCancelled = true;
     await this.callCancelApiRequest();
     this.props.order.setShowQR(false);
     this.props.order.setQRdata({});
     return super._cancel();
-  },
+  }
+
   _confirm() {
     if (this.props.order && this.props.order.get_selected_paymentline()) {
       this.props.order.get_selected_paymentline().isCancelled = false;
@@ -109,8 +121,23 @@ patch(QRPopup.prototype, {
       }
     }
     return super._confirm();
-  },
+  }
+
   callCancelApiRequest() {
     this.env.services.orm.call("pos.order", "cancel_api_request", []);
-  },
-});
+  }
+  showCustomerScreen() {
+    this.props.order.uiState["PaymentScreen"] = {
+      qrPaymentData: {
+        name: this.props.title,
+        amount: this.amount,
+        qrCode: this.props.qrCode,
+      },
+    };
+  }
+
+  async execButton(callback) {
+    delete this.props.order.uiState.PaymentScreen.qrPaymentData;
+    return super.execButton(callback);
+  }
+}

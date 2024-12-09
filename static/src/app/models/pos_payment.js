@@ -4,10 +4,7 @@ import { patch } from "@web/core/utils/patch";
 patch(PosPayment.prototype, {
   handle_payment_response(isPaymentSuccessful) {
     var result = super.handle_payment_response(isPaymentSuccessful);
-    if (
-      this.payment_method_id.payment_method_type == "qr_code" &&
-      !this.isConfirmed
-    ) {
+    if (this.payment_method_id.qr_code_method === "qr30" && !this.isConfirmed) {
       if (this.isCancelled) {
         this.set_payment_status("retry");
       } else if (this.isTimerExpired) {
