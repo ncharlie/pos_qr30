@@ -10,7 +10,7 @@ class SCBPaymentIntegration(http.Controller):
         data = request.httprequest.data
         # print(request.httprequest.host)
         # print(request.httprequest.host_url)
-        # print(request.httprequest.remote_addr)
+        print(request.httprequest.remote_addr)
         # print(request.httprequest.remote_user)
 
         result = json.loads(data.decode('utf-8'))

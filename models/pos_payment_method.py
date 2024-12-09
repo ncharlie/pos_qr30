@@ -69,8 +69,9 @@ class PosPaymentMethod(models.Model):
 
     def _load_pos_data_fields(self, config_id):
         data = super()._load_pos_data_fields(config_id)
-        data += ['qr_code_method', 'qr30_provider', 'qr30_biller_name',
-                 'qr30_biller_code', 'qr30_payment_timer']
+        data += ['qr_code_method', 'qr30_provider', 'qr30_biller_name', 'qr30_biller_code',
+                 'qr30_payment_timer', 'qr30_payment_fee', 'qr30_payment_fee_product_id',
+                 'qr30_minimum_price', 'qr30_maximum_price']
         return data
 
     @api.depends('payment_method_type')
@@ -106,19 +107,6 @@ class PosPaymentMethod(models.Model):
     def _is_write_forbidden(self, fields):
         return super(PosPaymentMethod, self)._is_write_forbidden(fields -
                                                                  {'qr30_api_auth_token', 'qr30_api_auth_token_expire_time'})
-
-    def get_scb_qr_fees(self, amount):
-        if self.qr_code_method != "qr30":
-            return {'success': False}
-
-        payment_amount = self.qr30_payment_fee + amount
-        if (self.qr30_minimum_price <= payment_amount <= self.qr30_maximum_price) or (
-                self.qr30_minimum_price == 0 and self.qr30_maximum_price == 0):
-            return {
-                'success': True,
-                'fix_payment_fees': self.qr30_payment_fee,
-                'fix_payment_product_id': self.qr30_payment_fee_product_id.id
-            }
 
     def get_qr_code(
             self, amount, free_communication, structured_communication, currency, debtor_partner):
@@ -159,7 +147,7 @@ class PosPaymentMethod(models.Model):
                 'scb_config_id': self.id,
                 'scb_config_name': self.qr30_biller_name,
                 'qr_timer': self.qr30_payment_timer,
-                'fix_payment_fees': self.qr30_payment_fee,
+                'fix_payment_fee': self.qr30_payment_fee,
                 'fix_payment_product_id': self.qr30_payment_fee_product_id.id,
                 'ref1': ref1,
                 'ref2': ref2,
