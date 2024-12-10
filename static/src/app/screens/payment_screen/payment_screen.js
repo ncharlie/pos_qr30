@@ -6,7 +6,6 @@ import { _t } from "@web/core/l10n/translation";
 patch(PaymentScreen.prototype, {
   setup() {
     super.setup();
-    this.env.services.bus_service.addChannel("scb_payment_callback");
     this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", (data) => {
       var qr_data = this.currentOrder.getQRdata();
       if (qr_data && qr_data.scb_config_id) {

@@ -18,7 +18,7 @@ class SCBPaymentIntegration(http.Controller):
         if result.get('transactionId'):
             # print("\n\n SCB: Callback: data", data)
             request.env["bus.bus"]._sendone(
-                f"scb_payment_callback", "PAYMENT_CALLBACK", data
+                "qr30_payment_callback", "PAYMENT_CALLBACK", data
             )
 
         headers = {'Content-Type': 'application/json'}

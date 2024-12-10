@@ -24,7 +24,6 @@ export class QR30Popup extends ConfirmationDialog {
     this.amount = this.env.utils.formatCurrency(this.props.line.amount);
     this.showCustomerScreen();
 
-    var self = this;
     var remaining_duration = false;
     this.props.order.get_selected_paymentline().isCancelled = false;
     this.props.order.get_selected_paymentline().isTimerExpired = false;
@@ -56,11 +55,11 @@ export class QR30Popup extends ConfirmationDialog {
         false
       );
     });
-    this.env.services.bus_service.addChannel("scb_payment_callback");
     this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", (data) => {
       if (this.props.order.getQRdata().scb_config_id) {
         var json_data = JSON.parse(data);
         // console.log("QR POPUP json_data >>>>>>> ", json_data);
+        // console.log("Verified from qr popup");
         if (
           this.props.order.getQRdata().ref1 == json_data.billPaymentRef1 &&
           this.props.order.getQRdata().ref2 == json_data.billPaymentRef2 &&
@@ -73,7 +72,7 @@ export class QR30Popup extends ConfirmationDialog {
         }
       }
     });
-    this.env.services.bus_service.start();
+
     this.props.order.setShowQR(true);
   }
 
@@ -126,6 +125,7 @@ export class QR30Popup extends ConfirmationDialog {
   callCancelApiRequest() {
     this.env.services.orm.call("pos.order", "cancel_api_request", []);
   }
+
   showCustomerScreen() {
     this.props.order.uiState["PaymentScreen"] = {
       qrPaymentData: {

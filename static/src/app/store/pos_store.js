@@ -7,13 +7,14 @@ import { patch } from "@web/core/utils/patch";
 import { _t } from "@web/core/l10n/translation";
 
 patch(PosStore.prototype, {
+  async setup() {
+    await super.setup(...arguments);
+    this.bus.addChannel("qr30_payment_callback");
+  },
   async showQR(payment) {
-    console.log(payment.payment_method_id.qr_code_method);
     if (payment.payment_method_id.qr_code_method != "qr30")
       return await super.showQR(payment);
 
-    console.log(payment.payment_method_id.payment_method_type);
-    var self = this;
     let qr;
     let res;
     var qr_time_update = false;
@@ -59,6 +60,12 @@ patch(PosStore.prototype, {
           format_amount: this.chrome.env.utils.formatCurrency(payment.amount),
         });
       } else if (typeof res == "object") {
+        Object.assign(res, {
+          scb_config_id: payment.payment_method_id.id,
+          scb_config_name: payment.payment_method_id.qr30_biller_name,
+          qr_timer: payment.payment_method_id.qr30_payment_timer,
+        });
+
         if (qr_time_update) {
           var currentDate = new Date();
           Object.assign(res, {
@@ -68,6 +75,7 @@ patch(PosStore.prototype, {
             ),
           });
         }
+
         current_order.setQRdata(res);
         qr = res.qrImage;
       }
