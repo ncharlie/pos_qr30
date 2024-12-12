@@ -1,6 +1,6 @@
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { useState, onWillStart, onWillDestroy } from "@odoo/owl";
+import { useState, onWillDestroy } from "@odoo/owl";
 
 export class QR30Popup extends ConfirmationDialog {
   static template = "pos_qr30_scb.QR30ConfirmationDialog";
@@ -34,39 +34,27 @@ export class QR30Popup extends ConfirmationDialog {
       this.countdown();
     }, 1000);
 
-    const pmCallback = (data) => {
-      console.log("Verified from qr popup");
-      if (this.props.line.get_payment_status() != "done") {
-        var json_data = JSON.parse(data);
-        // console.log("QR POPUP json_data >>>>>>> ", json_data);
-        if (
-          this.props.line.qr30_ref1 == json_data.billPaymentRef1 &&
-          this.props.line.qr30_ref2 == json_data.billPaymentRef2 &&
-          this.props.line.qr30_ref3 == json_data.billPaymentRef3
-        ) {
-          this.props.line.setTransactionDetails(json_data);
-          this._confirm();
-        }
-      }
-    };
-
     onWillDestroy(async () => {
       clearInterval(this.update);
       this.props.order.hideQRcodeOnCustomerDisplay();
-      this.props.order.chrome.sendOrderToCustomerDisplay(
-        this.props.order,
-        false
-      );
-      console.log("QR POPUP onWillDestroy");
-      this.env.services.bus_service.unsubscribe("PAYMENT_CALLBACK", pmCallback);
+      if (this.props.line.get_payment_status() != "done") {
+        this.props.order.chrome.sendOrderToCustomerDisplay(
+          this.props.order,
+          false
+        );
+      }
+      // this.env.services.bus_service.unsubscribe("PAYMENT_CALLBACK", pmCallback);
     });
 
-    this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", pmCallback);
+    // this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", pmCallback);
 
     this.props.order.showQRcodeOnCustomerDisplay();
   }
 
   countdown() {
+    if (this.props.line.get_payment_status() == "done") {
+      this.props.close();
+    }
     this.state.secondBeforeExpire = Math.round(
       this.props.line.qr30_expire_time.diffNow("seconds").seconds
     );

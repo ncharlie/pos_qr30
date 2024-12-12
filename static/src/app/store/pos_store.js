@@ -11,8 +11,42 @@ const { DateTime } = luxon;
 patch(PosStore.prototype, {
   async setup() {
     await super.setup(...arguments);
+
     this.bus.addChannel("qr30_payment_callback");
+    this.bus.subscribe("PAYMENT_CALLBACK", async (data) => {
+      const jsonData = JSON.parse(data);
+      let payment = this.models["pos.payment"].find(
+        (pm) =>
+          pm.qr30_ref1 == jsonData.billPaymentRef1 &&
+          pm.qr30_ref2 == jsonData.billPaymentRef2 &&
+          pm.qr30_ref3 == jsonData.billPaymentRef3 &&
+          pm.payment_status == "waitingPayment"
+      );
+
+      if (!payment) {
+        payment = await this.data.searchRead("pos.payment", [
+          ["qr30_ref1", "=", jsonData.billPaymentRef1],
+          ["qr30_ref2", "=", jsonData.billPaymentRef2],
+          ["qr30_ref3", "=", jsonData.billPaymentRef3],
+          ["payment_status", "=", "waitingPayment"],
+        ]);
+
+        // get first payment
+        payment = payment.length > 0 && payment[0];
+      }
+
+      if (payment && payment.get_payment_status() === "waitingPayment") {
+        payment.set_payment_status("done");
+        payment.setTransactionDetails(jsonData);
+      }
+    });
   },
+
+  async closePos() {
+    await super.closePos(...arguments);
+    this.bus.deleteChannel("qr30_payment_callback");
+  },
+
   async showQR(payment) {
     if (payment.payment_method_id.qr_code_method != "qr30")
       return await super.showQR(payment);
@@ -56,8 +90,7 @@ patch(PosStore.prototype, {
         QR30Popup
       );
     } catch (error) {
-      console.log("error found");
-      console.log(error);
+      console.error(error);
 
       let message;
       if (error instanceof ConnectionLostError) {

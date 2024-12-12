@@ -4,31 +4,6 @@ import { AlertDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 
 patch(PaymentScreen.prototype, {
-  setup() {
-    super.setup();
-    this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", (data) => {
-      console.log("Verified from payment screen");
-      if (this.currentOrder?.hasQR30PaymentLine()) {
-        var payment = this.currentOrder.getQR30PaymentLine();
-        if (payment.get_payment_status() != "done") {
-          var json_data = JSON.parse(data);
-          // console.log("PAYMENT SCREEN json_data >>>>>>> ", json_data);
-          if (
-            payment.qr30_ref1 == json_data.billPaymentRef1 &&
-            payment.qr30_ref2 == json_data.billPaymentRef2 &&
-            payment.qr30_ref3 == json_data.billPaymentRef3
-          ) {
-            payment.setTransactionDetails(json_data);
-            // this.currentOrder.setTransactionDetails(json_data);
-            if (this.selectedPaymentLine) {
-              this.validateOrder(false);
-            }
-          }
-        }
-      }
-    });
-  },
-
   async addNewPaymentLine(paymentMethod) {
     if (paymentMethod.qr_code_method != "qr30")
       return await super.addNewPaymentLine(paymentMethod);
@@ -80,7 +55,6 @@ patch(PaymentScreen.prototype, {
     );
 
     if (line) {
-      console.log(line.get_quantity());
       line.set_quantity(line.get_quantity() + 1, true);
     } else {
       line = await this.pos.addLineToCurrentOrder(
