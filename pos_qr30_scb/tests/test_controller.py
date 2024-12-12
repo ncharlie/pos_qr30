@@ -36,7 +36,7 @@ class TestPoSControllerQr30(TestPointOfSaleHttpCommon):
         self.assertEqual(response_data.get('transactionId'), notification_data['transactionId'])
 
         bus_1 = self.env['bus.bus'].sudo().search(
-            [('channel', 'like', 'scb_payment_callback')],
+            [('channel', 'like', 'qr30_payment_callback')],
             order='id desc',
             limit=1,
         )

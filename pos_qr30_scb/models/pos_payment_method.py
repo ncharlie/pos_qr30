@@ -36,7 +36,7 @@ class PosPaymentMethod(models.Model):
         string="Base url", groups='base.group_system', readonly=False, store=True,
         default="https://api-sandbox.partners.scb/partners/sandbox/v1")
 
-    qr30_has_callback = fields.Boolean(string="Enable callback", default=False)
+    qr30_has_callback = fields.Boolean(string="Enable callback", default=True)
     qr30_callback_url = fields.Char(string="Callback URL",
                                     readonly=True,
                                     store=False,

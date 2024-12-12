@@ -20,7 +20,7 @@ class PosPayment(models.Model):
 
     # await payment -----------------------
     qr30_raw_data = fields.Text('QR raw data')
-    qr30_image = fields.Text('QR raw data', store=False)
+    qr30_image = fields.Text('QR image data', store=False)
     qr30_expire_time = fields.Datetime(store=False)
 
     # post payment ------------------------
