@@ -1,18 +1,26 @@
 {
-    "name": "POS QR30 - SCB",
+    "name": "POS Thai QR30 - SCB",
     "version": "1.0",
     "category": "Sales/Point of Sale",
-    'author': "Chanuwat",
-    "license": "LGPL-3",
+    'author': "Chanuwat NC",
+    "license": "AGPL-3",
     'installable': True,
     'application': False,
     "auto_install": False,
     "depends": ["point_of_sale"],
-    "summary": "Integrate your POS with QR30 payment provided by SCB",
+    "summary": "Integrate your POS with QR tag30 payment provided by SCB",
     "data": [
         "security/ir.model.access.csv",
         "views/pos_payment_method_views.xml",
         "views/pos_payment_views.xml"
+    ],
+    'images': [
+        'static/description/setup1.png',
+        'static/description/setup2.png',
+        'static/description/usage1.png',
+        'static/description/usage2.png',
+        'static/description/receipt1.png',
+        'static/description/history1.png',
     ],
     "assets": {
         "point_of_sale._assets_pos": [
