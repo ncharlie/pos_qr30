@@ -8,7 +8,7 @@
     'application': False,
     "auto_install": False,
     "depends": ["point_of_sale"],
-    "summary": "Integrate your POS with QR tag30 payment provided by SCB",
+    "summary": "Integrate your POS with QR code payment provided by SCB. Compatible with PromptPay.",
     "data": [
         "security/ir.model.access.csv",
         "views/pos_payment_method_views.xml",
