@@ -23,6 +23,7 @@ Supported features
 -  Manual payment confirmation
 -  Payment limits (min-max)
 -  Payment fee
+-  QR code on Customer Display
 
 Technical details
 -----------------
@@ -108,6 +109,11 @@ To use this payment,
 
    |QR Code popup|
 
+- After the payment is confirmed, the system will automatically navigate to receipt screen.
+
+  - User can hide the popup and process another order while waiting for payment. In this case, the payment is marked as paid and the user can click on "Validate" to proceed to receipt screen.
+  - User can confirm the payment manually by clicking on the "Manually confirm payment" button.
+
 - The difference of closing and cancel button in qrcode popup.
 
   - Closing popup with (X) in the top right corner is just hiding the popup. You can reopen it with the same QR code data. Customer can still pay with the same qrcode.
@@ -137,21 +143,21 @@ Payments must be made using a separate `sandbox account <https://developer.scb.c
 
 Read more at https://developer.scb.co.th/#/documents.
 
-.. |Configuration| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/setup1.png 
+.. |Configuration| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/setup1.png 
  :alt: Configuration 
  :width: 800
-.. |SCB Configuration| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/setup2.png
+.. |SCB Configuration| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/setup2.png
  :alt: SCB Configuration
  :width: 350
-.. |Receipt| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/receipt1.png
+.. |Receipt| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/receipt1.png
  :alt: Receipt
  :width: 400
-.. |Select Payment Method| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/usage1.png
+.. |Select Payment Method| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/usage1.png
  :alt: Select Payment Method
  :width: 800
-.. |QR Code popup| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/usage2.png
+.. |QR Code popup| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/usage2.png
  :alt: QR Code popup
  :width: 800
-.. |Full payment history| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/history1.png
+.. |Full payment history| image:: https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/history1.png
  :alt: Full payment history
  :width: 450

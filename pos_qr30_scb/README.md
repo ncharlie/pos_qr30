@@ -2,7 +2,7 @@
 
 The Point of sale QR30 module provides integration with SCB's qr code payment service via Thai QR Code Tag 30 (QR 30). It allows the POS system to validate a customer payment with the callback url from the bank when a customer pays by scanning a QR code with a Thai bank's mobile application.
 
-This module collects the following data from the bank. Please check the PDPA law.
+This module collects the following customer data from the bank. Please check the PDPA law.
 
 - Transaction id
 - Payer's bank
@@ -16,6 +16,7 @@ This module collects the following data from the bank. Please check the PDPA law
 - Manual payment confirmation
 - Payment limits (min-max)
 - Payment fee
+- QR code on Customer Display
 
 ## Technical details
 
@@ -40,7 +41,7 @@ First, you need to create a payment for POS.
 To configure this module, you need to:
 
 - Go to Point of Sale > Configuration > Payment Methods > New
-  ![Configuration](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/setup1.png)
+  ![Configuration](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/setup1.png)
 
 - Original setup
 
@@ -55,7 +56,7 @@ To configure this module, you need to:
   - "Name" can be shop name or any text you want to display with the QR code.
   - "Enable Callback" is to allow callback from SCB.
   - "Callback URL" is the callback endpoint in Odoo system. Copy the generated value and put it in SCB configuration.
-    ![SCB Configuration](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/setup2.png)
+    ![SCB Configuration](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/setup2.png)
   - "Biller ID" is provided by SCB in merchant profile menu.
   - "Ref 3 Prefix" is also in merchant profile.
 
@@ -66,7 +67,7 @@ To configure this module, you need to:
 
   - "Customer Fee" is the service charge for this payment. Set it as you'd like.
   - "Fix Payment Product" is the product to associate with "Customer Fee". You can create a new service type product. This product appears in the receipt.
-    ![Receipt](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/receipt1.png)
+    ![Receipt](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/receipt1.png)
 
 - (Optional) Click Test Connection to test the configuration.
 
@@ -77,10 +78,15 @@ To configure this module, you need to:
 To use this payment,
 
 - After checking out, select the payment method associated with QR tag 30 and click send.
-  ![Select Payment Method](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/usage1.png)
+  ![Select Payment Method](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/usage1.png)
 
 - The qrcode popup will appears.
-  ![QR Code popup](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/usage2.png)
+  ![QR Code popup](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/usage2.png)
+
+- After the payment is confirmed, the system will automatically navigate to receipt screen.
+
+  - User can hide the popup and process another order while waiting for payment. In this case, the payment is marked as paid and the user can click on "Validate" to proceed to receipt screen.
+  - User can confirm the payment manually by clicking on the "Manually confirm payment" button.
 
 - The difference of closing and cancel button in qrcode popup.
   - Closing popup with (X) in the top right corner is just hiding the popup. You can reopen it with the same QR code data. Customer can still pay with the same qrcode.
@@ -93,7 +99,7 @@ Go to Point of Sale > Orders > Payment
 - Here you can see a list of payments made group by their payment method
 
 - Click to view full information
-  ![Full payment history](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/history1.png)
+  ![Full payment history](https://raw.githubusercontent.com/ncharlie/pos_qr30/refs/heads/18.0/pos_qr30_scb/static/description/history1.png)
 
 ## Module history
 
