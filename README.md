@@ -82,19 +82,18 @@ To use this payment,
 - The qrcode popup will appears.
   ![QR Code popup](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/usage2.png)
 
-There are 2 ways to view payment history,
+- The difference of closing and cancel button in qrcode popup.
+  - Closing popup with (X) in the top right corner is just hiding the popup. You can reopen it with the same QR code data. Customer can still pay with the same qrcode.
+  - Cancel Payment button however, voids the qr code. If the user make a payment, it does NOT register within the system. You can generate a new QR code.
 
-1. Go to Point of Sale > Orders > Orders
+To view payment history,
 
-- Select an order that is paid via this method and go to QR30 Payment History tab in the notebook.
-  ![Order history](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/history1.png)
+Go to Point of Sale > Orders > Payment
+
+- Here you can see a list of payments made group by their payment method
 
 - Click to view full information
-  ![Full payment history](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/history2.png)
-
-2. Go to Point of Sale > Orders > SCB Payment History
-
-- Here you can see a list of payments made and their status "Paid" or "Confirmed Manually"
+  ![Full payment history](https://raw.githubusercontent.com/ncharlie/pos_qr30_scb/refs/heads/master/static/description/history1.png)
 
 ## Module history
 
