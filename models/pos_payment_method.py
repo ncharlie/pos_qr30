@@ -127,17 +127,12 @@ class PosPaymentMethod(models.Model):
         ref2 = _rand_str(20)
         ref3 = f"{self.qr30_ref3_prefix}{_rand_str(7)}"
 
-        try:
-            qr30_data = self._call_qr30_api(amount, ref1, ref2, ref3)
-
-            barcode = self.env['ir.actions.report'].barcode(barcode_type='QR',
-                                                            value=qr30_data,
-                                                            height=350,
-                                                            width=350)
-
-            qr_code_image = image_data_uri(base64.b64encode(barcode))
-        except Exception as e:
-            return {'success': False, 'message': str(_(e))}
+        qr30_data = self._call_qr30_api(amount, ref1, ref2, ref3)
+        barcode = self.env['ir.actions.report'].barcode(barcode_type='QR',
+                                                        value=qr30_data,
+                                                        height=350,
+                                                        width=350)
+        qr_code_image = image_data_uri(base64.b64encode(barcode))
 
         if qr_code_image:
             return {
@@ -280,3 +275,7 @@ class PosPaymentMethod(models.Model):
                 'next': {'type': 'ir.actions.act_window_close'},
             },
         }
+
+    @api.model
+    def void_qr_code(self):
+        print("\nCall Void QR Code")

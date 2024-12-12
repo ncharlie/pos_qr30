@@ -21,109 +21,75 @@ export class QR30Popup extends ConfirmationDialog {
   setup() {
     super.setup();
     this.props.body = _t("Please scan the QR code with %s", this.props.title);
+    this.shopName = this.props.line.payment_method_id.qr30_biller_name;
     this.amount = this.env.utils.formatCurrency(this.props.line.amount);
+    this.props.order.setQR30FormattedAmount(this.amount);
     this.showCustomerScreen();
 
-    var remaining_duration = false;
-    this.props.order.get_selected_paymentline().isCancelled = false;
-    this.props.order.get_selected_paymentline().isTimerExpired = false;
-    this.props.order.get_selected_paymentline().isConfirmed = false;
-    if (this.props.order.getQRdata().qr_generate_time) {
-      remaining_duration = Math.floor(
-        this.props.order.getQRdata().qr_generate_time - new Date()
-      );
-    }
     this.state = useState({
-      timerExpired: false,
-      duration: remaining_duration
-        ? Math.floor(remaining_duration / 1000)
-        : false,
-      scb_name: this.props.order.getQRdata()
-        ? this.props.order.getQRdata().scb_config_name
-        : false,
+      secondBeforeExpire: 600,
     });
-    onWillStart(async () => {
-      if (this.state.duration) {
-        this._runTimer();
+
+    this.update = setInterval(() => {
+      this.countdown();
+    }, 1000);
+
+    const pmCallback = (data) => {
+      console.log("Verified from qr popup");
+      if (this.props.line.get_payment_status() != "done") {
+        var json_data = JSON.parse(data);
+        // console.log("QR POPUP json_data >>>>>>> ", json_data);
+        if (
+          this.props.line.qr30_ref1 == json_data.billPaymentRef1 &&
+          this.props.line.qr30_ref2 == json_data.billPaymentRef2 &&
+          this.props.line.qr30_ref3 == json_data.billPaymentRef3
+        ) {
+          this.props.line.setTransactionDetails(json_data);
+          this._confirm();
+        }
       }
-    });
+    };
+
     onWillDestroy(async () => {
-      clearTimeout(this.timer);
-      this.props.order.setShowQR(false);
+      clearInterval(this.update);
+      this.props.order.hideQRcodeOnCustomerDisplay();
       this.props.order.chrome.sendOrderToCustomerDisplay(
         this.props.order,
         false
       );
-    });
-    this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", (data) => {
-      if (this.props.order.getQRdata().scb_config_id) {
-        var json_data = JSON.parse(data);
-        // console.log("QR POPUP json_data >>>>>>> ", json_data);
-        // console.log("Verified from qr popup");
-        if (
-          this.props.order.getQRdata().ref1 == json_data.billPaymentRef1 &&
-          this.props.order.getQRdata().ref2 == json_data.billPaymentRef2 &&
-          this.props.order.getQRdata().ref3 == json_data.billPaymentRef3
-        ) {
-          this.props.order.getQRdata().qr_status = "paid";
-          this._confirm();
-          //                    this.props.order.get_selected_paymentline().set_payment_status("done");
-          //                    this.props.close();
-        }
-      }
+      console.log("QR POPUP onWillDestroy");
+      this.env.services.bus_service.unsubscribe("PAYMENT_CALLBACK", pmCallback);
     });
 
-    this.props.order.setShowQR(true);
+    this.env.services.bus_service.subscribe("PAYMENT_CALLBACK", pmCallback);
+
+    this.props.order.showQRcodeOnCustomerDisplay();
   }
 
-  _runTimer() {
-    this.timer = setTimeout(() => {
-      if (this.state.duration != 0) {
-        this.state.duration -= 1;
-        this._runTimer();
-      } else {
-        this.props.order.get_selected_paymentline().isTimerExpired = true;
-        this.props.close();
-        this.props.order.setShowQR(false);
-        this.callCancelApiRequest();
-      }
-    }, 1000);
+  countdown() {
+    this.state.secondBeforeExpire = Math.round(
+      this.props.line.qr30_expire_time.diffNow("seconds").seconds
+    );
+    if (this.state.secondBeforeExpire <= 0) {
+      this.callCancelApiRequest();
+      // this.props.order.hideQRcodeOnCustomerDisplay();
+      this.props.close();
+    }
   }
 
   async _cancel() {
-    this.props.order.get_selected_paymentline().isCancelled = true;
     await this.callCancelApiRequest();
-    this.props.order.setShowQR(false);
-    this.props.order.setQRdata({});
+    // this.props.order.hideQRcodeOnCustomerDisplay();
+    this.props.line.set_payment_status("retry");
     return super._cancel();
   }
 
   _confirm() {
-    if (this.props.order && this.props.order.get_selected_paymentline()) {
-      this.props.order.get_selected_paymentline().isCancelled = false;
-      this.props.order.get_selected_paymentline().isConfirmed = true;
-      var qr_data = this.props.order.getQRdata();
-      if (
-        !this.props.order.getTransactionDetails() &&
-        qr_data &&
-        qr_data.scb_config_name
-      ) {
-        qr_data["billPaymentRef1"] = qr_data["ref1"];
-        qr_data["billPaymentRef2"] = qr_data["ref2"];
-        qr_data["billPaymentRef3"] = qr_data["ref3"];
-        qr_data["amount"] = this.props.line.amount;
-        qr_data["qr_status"] = "confirmed_manually";
-        delete qr_data["ref1"];
-        delete qr_data["ref2"];
-        delete qr_data["ref3"];
-        this.props.order.setTransactionDetails(qr_data);
-      }
-    }
     return super._confirm();
   }
 
-  callCancelApiRequest() {
-    this.env.services.orm.call("pos.order", "cancel_api_request", []);
+  async callCancelApiRequest() {
+    this.env.services.orm.call("pos.payment.method", "void_qr_code", []);
   }
 
   showCustomerScreen() {

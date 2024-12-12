@@ -2,44 +2,50 @@ import { PosOrder } from "@point_of_sale/app/models/pos_order";
 import { patch } from "@web/core/utils/patch";
 
 patch(PosOrder.prototype, {
-  setShowQR(show_qr) {
-    this.show_qr = show_qr;
+  showQRcodeOnCustomerDisplay() {
+    this.qr30ShowOnCustomerDisplay = true;
   },
-  getShowQR() {
-    return this.show_qr;
+  hideQRcodeOnCustomerDisplay() {
+    this.qr30ShowOnCustomerDisplay = false;
   },
-  setFixPaymentProductId(fix_payment_product_id) {
-    this.fix_payment_product_id = fix_payment_product_id;
-  },
-  getFixPaymentProductId() {
-    return this.fix_payment_product_id;
-  },
+
   getCustomerDisplayData() {
-    var res = super.getCustomerDisplayData();
-    res.show_qr = this.getShowQR();
-    res.qr_data = this.getQRdata() ? this.getQRdata().qrImage : false;
-    res.qr_timer = this.getQRdata() ? this.getQRdata().qr_timer : false;
-    res.scb_name = this.getQRdata() ? this.getQRdata().scb_config_name : false;
-    res.qr_amount =
-      this.getQRdata() && this.getQRdata().format_amount
-        ? this.getQRdata().format_amount
-        : false;
-    res.qr_generate_time =
-      this.getQRdata() && this.getQRdata().qr_generate_time
-        ? this.getQRdata().qr_generate_time
-        : false;
-    return res;
+    const data = super.getCustomerDisplayData();
+
+    data.qr30ShowOnCustomerDisplay = this.qr30ShowOnCustomerDisplay || false;
+    data.qr30Data = {
+      qrImage: this.qr30Payment?.qr30_image,
+      shopName: this.qr30Payment?.payment_method_id.qr30_biller_name,
+      formattedAmount: this.qr30FormattedAmount,
+      expireTime: this.qr30Payment?.qr30_expire_time
+        ? this.qr30Payment.qr30_expire_time.toJSDate()
+        : undefined,
+    };
+
+    return data;
   },
-  setQRdata(qr_data) {
-    this.qr_data = qr_data;
+
+  setQR30PaymentLine(payment) {
+    this.qr30Payment = payment;
   },
-  getQRdata() {
-    return this.qr_data;
+  getQR30PaymentLine() {
+    return this.qr30Payment;
   },
-  setTransactionDetails(scb_transaction_details) {
-    this.scb_transaction_details = scb_transaction_details;
+  clearQR30PaymentLine() {
+    this.qr30Payment = undefined;
   },
-  getTransactionDetails() {
-    return this.scb_transaction_details;
+  hasQR30PaymentLine() {
+    return this.qr30Payment !== undefined;
+  },
+
+  setQR30PaymentFeeProductId(productId) {
+    this.qr30PaymentFeeProductId = productId;
+  },
+  getQR30PaymentFeeProductId() {
+    return this.qr30PaymentFeeProductId;
+  },
+
+  setQR30FormattedAmount(str) {
+    this.qr30FormattedAmount = str;
   },
 });

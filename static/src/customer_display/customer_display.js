@@ -5,15 +5,12 @@ import { patch } from "@web/core/utils/patch";
 
 patch(CustomerDisplay.prototype, {
   showQR() {
-    if (this.order.scb_name) {
+    if (this.order.qr30ShowOnCustomerDisplay) {
       this.dialog.add(CustomerDisplayQRPopup, {
-        qr_details: {
-          qr_code: this.order.qr_data,
-          qr_timer: this.order.qr_timer,
-          scb_name: this.order.scb_name,
-          qr_amount: this.order.qr_amount,
-          qr_generate_time: this.order.qr_generate_time,
-        },
+        qrCode: this.order.qr30Data.qrImage,
+        shopName: this.order.qr30Data.shopName,
+        amount: this.order.qr30Data.formattedAmount,
+        expireTime: this.order.qr30Data.expireTime,
       });
     }
   },
